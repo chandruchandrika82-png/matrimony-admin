@@ -1,24 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import "./App.css";
+
+import Layout from "./components/Layout";
+import Dashboard from "./pages/Dashboard";
+import Members from "./pages/Members";
+import Premium from "./pages/Premium";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
+import AdminLogin from "./pages/AdminLogin";
+import BackButton from "./components/BackButton";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+
+        {/* Login Page */}
+        <Route path="/login" element={<><div className="login-back"><BackButton fallback={null} /></div><AdminLogin /></>} />
+
+        {/* Admin Panel */}
+        <Route
+          path="/*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/members" element={<Members />} />
+                <Route path="/premium" element={<Premium />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Layout>
+          }
+        />
+
+      </Routes>
+    </BrowserRouter>
   );
 }
 

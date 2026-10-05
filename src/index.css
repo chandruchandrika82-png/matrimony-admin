@@ -6,6 +6,19 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+* { box-sizing: border-box; letter-spacing: 0; }
+.brand-image { width: 54px; height: 54px; object-fit: contain; flex-shrink: 0; background: white; }
+.admin-sidebar .sidebar-brand { gap: 8px; padding-left: 0; padding-right: 0; }
+.admin-sidebar .sidebar-brand h2 { font-size: 19px; line-height: 1.2; }
+.admin-login-page .login-brand { max-width: 100%; font-size: 24px; }
+.login-brand .brand-image { width: 72px; height: 72px; }
+@media (max-width: 420px) { .admin-login-page .login-brand { font-size: 21px; gap: 8px; } .login-brand .brand-image { width: 56px; height: 56px; } }
+.page-back { margin-bottom: 18px; }
+.login-back { position: absolute; top: 16px; left: 16px; }
+body { background: #f4f6f8; color: #303741; }
+button, input, select { font-family: inherit; }
+:focus-visible { outline: 2px solid #8c1c32; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

@@ -1,0 +1,6 @@
+export default function MemberTable({ members, loading, error, onSelect }) {
+  return <div className="table-scroll"><table><thead><tr><th>Member</th><th>Age / Gender</th><th>District</th><th>Religion</th><th>Membership</th>{onSelect && <th>Profile</th>}</tr></thead><tbody>
+    {members.map((m, index) => <tr key={m._id || m.id || index}><td><div className="member-cell">{m.image ? <img className="avatar" src={m.image} alt="" onError={e => { e.currentTarget.style.display = "none"; }} /> : <div className="avatar rose">{(m.name || "M").slice(0, 1).toUpperCase()}</div>}<div><strong>{m.name || "Unnamed member"}</strong><small>{m.email || "No email provided"}</small></div></div></td><td>{m.age || "--"}<span className="cell-sub">{m.gender || "Not specified"}</span></td><td>{m.district || "--"}</td><td>{m.religion || "--"}</td><td><span className={`badge ${m.isPremium ? "gold" : "neutral"}`}>{m.isPremium ? "Premium" : "Standard"}</span></td>{onSelect && <td><button className="text-link" onClick={() => onSelect(m)}>View</button></td>}</tr>)}
+    {!members.length && <tr><td colSpan={onSelect ? 6 : 5} className="empty-state">{loading ? "Loading profiles..." : error ? "Member records are unavailable." : "No members found."}</td></tr>}
+  </tbody></table></div>;
+}
