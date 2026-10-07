@@ -43,7 +43,7 @@ async function main() {
       for (const path of ['/', '/premium', '/reports', '/settings']) {
         await page.goto(`http://localhost:3002${path}`);
         await page.getByRole('heading', { level: 1 }).waitFor();
-        if (path === '/settings' && await page.getByLabel('API முகவரி').inputValue() !== '') throw new Error('Settings exposes API endpoint');
+        if (path === '/settings' && await page.getByLabel('API முகவரி').count()) throw new Error('Settings exposes API endpoint');
         if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) throw new Error(`Tamil page overflow: ${path} at ${width}`);
         await page.screenshot({ path: `artifacts/admin-management/tamil-${path.slice(1) || 'overview'}-${width}.png`, fullPage: true });
       }

@@ -93,11 +93,11 @@ test('edits members without sending saved profiles and requires confirmation bef
   await screen.findByText('Member deleted.');
 });
 
-test('settings hides the API endpoint without altering the application connection', async () => {
+test('settings omits backend connection without altering the application connection', async () => {
   localStorage.setItem('adminToken', 'test-session'); window.history.replaceState({}, '', '/settings'); api.get.mockResolvedValue({ data: [] });
   render(<App />);
-  expect(screen.getByLabelText('API endpoint')).toHaveValue('');
-  expect(screen.getByLabelText('API endpoint')).toHaveAttribute('readonly');
+  expect(screen.queryByText('Backend connection')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('API endpoint')).not.toBeInTheDocument();
   expect(screen.queryByDisplayValue('https://example.com/api')).not.toBeInTheDocument();
   await waitFor(() => expect(api.get).toHaveBeenCalledWith('/users'));
 });
@@ -107,7 +107,8 @@ test('complete member details and uploaded documents are submitted together', as
   api.get.mockResolvedValue({ data: [] }); api.post.mockResolvedValue({ data: {} });
   render(<App />); await screen.findByText('No members found.');
   fireEvent.click(screen.getByRole('button', { name: 'Add member' }));
-  for (const [, fields] of memberGroups) for (const [, label] of fields) expect(screen.getByLabelText(label)).toBeInTheDocument();
+  const labels = Array.from(screen.getByRole('dialog').querySelectorAll('label'));
+  for (const [, fields] of memberGroups) for (const [, label] of fields) expect(labels.some(element => element.textContent.trim().startsWith(label) && element.querySelector('input, select, textarea'))).toBe(true);
   fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Full Member' } });
   fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'full@example.com' } });
   fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'test-password' } });
