@@ -28,9 +28,9 @@ async function main() {
     }
   }
   await page.goto('http://localhost:3001/members');
-  await page.getByRole('button', { name: 'View', exact: true }).first().click();
+  await page.getByRole('button', { name: /^View Member/ }).first().click();
   await page.getByRole('dialog').waitFor();
-  await page.getByRole('button', { name: 'Close profile' }).click();
+  await page.getByRole('button', { name: 'Close', exact: true }).click();
   await page.getByRole('textbox', { name: 'Search members' }).fill('Member 13');
   await page.getByText('Member 13', { exact: true }).waitFor();
   await page.getByRole('button', { name: 'Toggle navigation' }).click();

@@ -1,7 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
+import { useLanguage } from "../Language";
 
 export default function BackButton({ fallback = "/" }) {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const canGoBack = (window.history.state?.idx || 0) > 0;
@@ -12,5 +14,5 @@ export default function BackButton({ fallback = "/" }) {
     else if (!disabled) navigate(fallback, { replace: true });
   }
 
-  return <button type="button" className="icon-button page-back" aria-label="Go back" title="Go back" disabled={disabled} onClick={goBack}><FiArrowLeft /></button>;
+  return <button type="button" className="icon-button page-back" aria-label={t("Go back")} title={t("Go back")} disabled={disabled} onClick={goBack}><FiArrowLeft /></button>;
 }

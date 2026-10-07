@@ -1,8 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import App from './App';
 import api from './services/api';
 
-jest.mock('./services/api', () => ({ __esModule: true, default: { get: jest.fn(), post: jest.fn() }, API_URL: 'https://example.com/api' }));
+jest.mock('./services/api', () => ({ __esModule: true, default: { get: jest.fn(), post: jest.fn(), put: jest.fn(), delete: jest.fn() }, API_URL: 'https://example.com/api' }));
+beforeAll(() => { HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); }; });
 beforeEach(() => {
   localStorage.clear();
   window.history.replaceState({}, '', '/');
@@ -38,4 +39,55 @@ test('shows failed data requests and allows retry', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
   await screen.findByText('No members found.');
   expect(api.get).toHaveBeenCalledTimes(2);
+});
+
+test('overview has no back button and Tamil language persists across navigation', async () => {
+  localStorage.setItem('adminToken', 'test-session'); api.get.mockResolvedValue({ data: [] });
+  render(<App />);
+  expect(screen.queryByRole('button', { name: 'Go back' })).not.toBeInTheDocument();
+  fireEvent.change(screen.getByRole('combobox', { name: 'Language' }), { target: { value: 'ta' } });
+  expect(screen.getByRole('heading', { name: 'கண்ணோட்டம்' })).toBeInTheDocument();
+  expect(localStorage.getItem('adminLanguage')).toBe('ta');
+  fireEvent.click(screen.getByRole('link', { name: 'உறுப்பினர்கள்' }));
+  expect(screen.getByRole('button', { name: 'பின்செல்' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'உறுப்பினரைச் சேர்' })).toBeInTheDocument();
+  await screen.findByText('உறுப்பினர்கள் இல்லை.');
+});
+
+test('adds a member and displays server errors without closing the form', async () => {
+  localStorage.setItem('adminToken', 'test-session'); window.history.replaceState({}, '', '/members');
+  api.get.mockResolvedValue({ data: [] }); api.post.mockRejectedValueOnce({ response: { data: { error: 'This email address is already registered' } } }).mockResolvedValueOnce({ data: {} });
+  render(<App />); await screen.findByText('No members found.');
+  fireEvent.click(screen.getByRole('button', { name: 'Add member' }));
+  const dialog = within(screen.getByRole('dialog'));
+  fireEvent.change(dialog.getByLabelText('Name'), { target: { value: 'New Member' } });
+  fireEvent.change(dialog.getByLabelText('Email'), { target: { value: 'new@example.com' } });
+  fireEvent.change(dialog.getByLabelText('Password'), { target: { value: 'test-password' } });
+  fireEvent.click(dialog.getByRole('button', { name: 'Save member' }));
+  expect(await dialog.findByRole('alert')).toHaveTextContent('already registered');
+  fireEvent.click(dialog.getByRole('button', { name: 'Save member' }));
+  await screen.findByText('Member added.');
+  expect(api.post).toHaveBeenLastCalledWith('/admin/members', expect.objectContaining({ name: 'New Member', email: 'new@example.com', password: 'test-password', isPremium: false }));
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+});
+
+test('edits members without sending saved profiles and requires confirmation before deleting', async () => {
+  localStorage.setItem('adminToken', 'test-session'); window.history.replaceState({}, '', '/members');
+  api.get.mockResolvedValue({ data: [{ _id: '1', name: 'Anu', email: 'anu@example.com', favoriteProfiles: ['2'], role: 'user' }] });
+  api.put.mockResolvedValue({ data: {} }); api.delete.mockResolvedValue({ data: {} });
+  render(<App />); await screen.findByText('Anu');
+  fireEvent.click(screen.getByRole('button', { name: 'Edit member Anu' }));
+  fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Anu Updated' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save member' }));
+  await screen.findByText('Member updated.');
+  expect(api.put.mock.calls[0][1]).not.toHaveProperty('favoriteProfiles');
+  expect(api.put.mock.calls[0][1]).not.toHaveProperty('role');
+  fireEvent.click(screen.getByRole('button', { name: 'Delete member Anu' }));
+  expect(api.delete).not.toHaveBeenCalled();
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }));
+  expect(api.delete).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: 'Delete member Anu' }));
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete member' }));
+  await waitFor(() => expect(api.delete).toHaveBeenCalledWith('/admin/members/1'));
+  await screen.findByText('Member deleted.');
 });

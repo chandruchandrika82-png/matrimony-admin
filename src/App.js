@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
+import "./MemberAdmin.css";
 
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
@@ -9,10 +10,11 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import AdminLogin from "./pages/AdminLogin";
 import BackButton from "./components/BackButton";
+import { LanguageProvider } from "./Language";
 
 function App() {
   return (
-    <BrowserRouter>
+    <LanguageProvider><BrowserRouter>
       <Routes>
 
         {/* Login Page */}
@@ -36,7 +38,7 @@ function App() {
         />
 
       </Routes>
-    </BrowserRouter>
+    </BrowserRouter></LanguageProvider>
   );
 }
 

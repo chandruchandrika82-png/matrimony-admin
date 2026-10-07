@@ -1,0 +1,9 @@
+.heading-actions,.row-actions,.dialog-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row-actions{flex-wrap:nowrap}.danger-icon{color:#a83244}.button.danger{background:#a83244;border-color:#a83244;color:#fff}
+.notice.success{background:#eaf6ee;color:#276343;border-color:#c9e5d2}
+.member-editor{width:min(94vw,760px);max-height:90vh;overflow-y:auto}
+.editor-fields{border:0;padding:0;margin:0;min-width:0}.editor-section{padding:18px 0;border-top:1px solid #e4e7eb}.editor-section h3{margin:0 0 18px;font-size:14px}
+.editor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px}.editor-grid .full-width{grid-column:1/-1}
+.field textarea{font:inherit;padding:12px;border:1px solid #dce0e5;border-radius:6px;width:100%;resize:vertical;font-weight:400;min-width:0}.check-field{display:flex;align-items:center;gap:10px;font-size:13px}.check-field input{width:16px;height:16px;accent-color:#8c1c32}
+.dialog-actions{justify-content:flex-end;margin-top:22px;padding-top:18px;border-top:1px solid #e4e7eb}.language-select{max-width:130px;min-height:36px}.profile-dialog p{font-size:13px;line-height:1.7}.profile-dialog h2{overflow-wrap:anywhere}.field{overflow-wrap:anywhere}.login-language{position:absolute;top:20px;right:20px}
+@media(max-width:760px){.breadcrumb{display:none}.topbar .admin-identity{margin-left:auto}.heading-actions{width:100%}.member-editor{padding:18px}.editor-grid{grid-template-columns:1fr}.admin-identity{gap:8px}}
