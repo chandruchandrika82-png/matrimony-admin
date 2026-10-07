@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import App from './App';
 import api from './services/api';
+import { memberGroups } from './components/MemberFields';
 
 jest.mock('./services/api', () => ({ __esModule: true, default: { get: jest.fn(), post: jest.fn(), put: jest.fn(), delete: jest.fn() }, API_URL: 'https://example.com/api' }));
 beforeAll(() => { HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); }; });
@@ -90,4 +91,34 @@ test('edits members without sending saved profiles and requires confirmation bef
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete member' }));
   await waitFor(() => expect(api.delete).toHaveBeenCalledWith('/admin/members/1'));
   await screen.findByText('Member deleted.');
+});
+
+test('settings hides the API endpoint without altering the application connection', async () => {
+  localStorage.setItem('adminToken', 'test-session'); window.history.replaceState({}, '', '/settings'); api.get.mockResolvedValue({ data: [] });
+  render(<App />);
+  expect(screen.getByLabelText('API endpoint')).toHaveValue('');
+  expect(screen.getByLabelText('API endpoint')).toHaveAttribute('readonly');
+  expect(screen.queryByDisplayValue('https://example.com/api')).not.toBeInTheDocument();
+  await waitFor(() => expect(api.get).toHaveBeenCalledWith('/users'));
+});
+
+test('complete member details and uploaded documents are submitted together', async () => {
+  localStorage.setItem('adminToken', 'test-session'); window.history.replaceState({}, '', '/members');
+  api.get.mockResolvedValue({ data: [] }); api.post.mockResolvedValue({ data: {} });
+  render(<App />); await screen.findByText('No members found.');
+  fireEvent.click(screen.getByRole('button', { name: 'Add member' }));
+  for (const [, fields] of memberGroups) for (const [, label] of fields) expect(screen.getByLabelText(label)).toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Full Member' } });
+  fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'full@example.com' } });
+  fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'test-password' } });
+  fireEvent.change(screen.getByLabelText('Business type'), { target: { value: 'Retail' } });
+  fireEvent.change(screen.getByLabelText('Father occupation'), { target: { value: 'Farmer' } });
+  fireEvent.change(screen.getByLabelText('Preferred age from'), { target: { value: '22' } });
+  fireEvent.click(screen.getByLabelText('Hide mobile'));
+  fireEvent.change(screen.getByLabelText('Horoscope file'), { target: { files: [new File(['fixture'], 'horoscope.pdf', { type: 'application/pdf' })] } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save member' }));
+  await screen.findByText('Member added.');
+  const submitted = api.post.mock.calls[0][1];
+  expect(submitted).toBeInstanceOf(FormData);
+  expect(submitted.get('businessType')).toBe('Retail'); expect(submitted.get('fatherOccupation')).toBe('Farmer'); expect(submitted.get('preferredAgeFrom')).toBe('22'); expect(submitted.get('hideMobile')).toBe('true'); expect(submitted.get('horoscopeFile').name).toBe('horoscope.pdf');
 });

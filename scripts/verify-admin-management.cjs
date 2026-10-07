@@ -25,9 +25,13 @@ async function main() {
       await page.getByText('Anu', { exact: true }).waitFor();
       await page.getByRole('button', { name: 'Add member', exact: true }).click();
       await page.getByRole('dialog').waitFor();
+      if (!await page.getByRole('combobox', { name: 'Business type', exact: true }).count()) throw new Error('Business type missing');
+      for (const label of ['Father occupation', 'Preferred age from', 'Land acres', 'Hide mobile', 'Horoscope file']) if (!await page.getByLabel(label, { exact: true }).count()) throw new Error(`Complete form missing ${label}`);
       if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) throw new Error('Page overflow');
       if (await page.getByRole('dialog').evaluate(el => el.scrollWidth > el.clientWidth)) throw new Error('Dialog overflow');
       await page.screenshot({ path: `artifacts/admin-management/add-${width}.png`, fullPage: true });
+      await page.getByRole('heading', { name: 'Photos and documents', exact: true }).scrollIntoViewIfNeeded();
+      await page.screenshot({ path: `artifacts/admin-management/uploads-${width}.png`, fullPage: true });
       await page.getByRole('button', { name: 'Cancel', exact: true }).click();
       await page.getByRole('combobox', { name: 'Language' }).selectOption('ta');
       await page.getByRole('heading', { name: 'உறுப்பினர்கள்', exact: true }).waitFor();
@@ -39,6 +43,7 @@ async function main() {
       for (const path of ['/', '/premium', '/reports', '/settings']) {
         await page.goto(`http://localhost:3002${path}`);
         await page.getByRole('heading', { level: 1 }).waitFor();
+        if (path === '/settings' && await page.getByLabel('API முகவரி').inputValue() !== '') throw new Error('Settings exposes API endpoint');
         if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) throw new Error(`Tamil page overflow: ${path} at ${width}`);
         await page.screenshot({ path: `artifacts/admin-management/tamil-${path.slice(1) || 'overview'}-${width}.png`, fullPage: true });
       }
@@ -49,8 +54,14 @@ async function main() {
     await page.getByLabel('Name', { exact: true }).fill('Test Member');
     await page.getByLabel('Email', { exact: true }).fill('test@example.com');
     await page.getByLabel('Password', { exact: true }).fill('fixture-password');
+    await page.getByRole('combobox', { name: 'Business type', exact: true }).selectOption('Retail');
+    await page.getByLabel('Father occupation', { exact: true }).fill('Farmer');
+    await page.getByLabel('Preferred age from', { exact: true }).fill('22');
+    await page.getByLabel('Preferred age to', { exact: true }).fill('30');
+    await page.getByLabel('Hide mobile', { exact: true }).check();
     await page.getByRole('button', { name: 'Save member', exact: true }).click();
     await page.getByText('Member added.', { exact: true }).waitFor();
+    if (rows[1].businessType !== 'Retail' || rows[1].fatherOccupation !== 'Farmer' || rows[1].preferredAgeFrom !== '22' || rows[1].hideMobile !== true) throw new Error('Complete profile data missing');
     await page.getByRole('button', { name: 'Edit member Test Member', exact: true }).click();
     await page.getByLabel('Name', { exact: true }).fill('Updated Member');
     await page.getByRole('button', { name: 'Save member', exact: true }).click();

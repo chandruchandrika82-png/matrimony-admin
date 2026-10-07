@@ -1,13 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { FiSave, FiX, FiTrash2 } from "react-icons/fi";
+import { FiSave, FiX, FiTrash2, FiExternalLink } from "react-icons/fi";
 import api from "../services/api";
 import { useLanguage } from "../Language";
-const groups = [
-  ["Basic information", [["name", "Name", "text", true], ["email", "Email", "email", true], ["mobile", "Mobile", "tel"], ["age", "Age", "number"], ["gender", "Gender", "gender"], ["dob", "Date of birth", "date"]]],
-  ["Location and contact", [["nativePlace", "Native place"], ["currentCity", "Current city"], ["district", "District"], ["state", "State"], ["country", "Country"], ["address", "Address", "textarea"]]],
-  ["Personal details", [["height", "Height"], ["weight", "Weight"], ["maritalStatus", "Marital status"], ["religion", "Religion"], ["caste", "Caste"], ["subCaste", "Subcaste"], ["motherTongue", "Mother tongue"], ["star", "Star"], ["rashi", "Rashi"]]],
-  ["Career and family", [["education", "Education"], ["occupationType", "Occupation"], ["companyName", "Company"], ["annualIncome", "Annual income"], ["fatherName", "Father name"], ["motherName", "Mother name"], ["expectations", "Expectations", "textarea"]]],
-];
+import { memberGroups, memberUploads, initialMemberForm } from "./MemberFields";
 export function Modal({ title, close, busy, children, wide = false }) {
   const ref = useRef(null); const { t } = useLanguage();
   useEffect(() => { const previous = document.activeElement; ref.current.showModal(); return () => previous?.focus(); }, []);
@@ -15,22 +10,44 @@ export function Modal({ title, close, busy, children, wide = false }) {
 }
 export default function MemberEditor({ member, close, complete }) {
   const { t } = useLanguage();
-  const [form, setForm] = useState(() => Object.fromEntries(groups.flatMap(([, fields]) => fields.map(([key]) => [key, member?.[key] ?? ""]))));
-  const [premium, setPremium] = useState(!!member?.isPremium); const [password, setPassword] = useState(""); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
+  const [form, setForm] = useState(() => initialMemberForm(member));
+  const [files, setFiles] = useState({});
+  const [password, setPassword] = useState(""); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
   function change(key, value) { setForm(current => ({ ...current, [key]: value })); }
   async function save(e) {
     e.preventDefault(); if (busy) return; setBusy(true); setError("");
     try {
-      const data = { ...form, isPremium: premium };
+      let data = { ...form, ...(!member ? { password } : {}) };
+      if (Object.values(files).some(list => list.length)) {
+        const multipart = new FormData();
+        Object.entries(data).forEach(([key, value]) => multipart.append(key, value));
+        Object.entries(files).forEach(([key, list]) => list.forEach(file => multipart.append(key, file)));
+        data = multipart;
+      }
       if (member) await api.put(`/admin/members/${member._id}`, data);
-      else await api.post("/admin/members", { ...data, password });
+      else await api.post("/admin/members", data);
       complete(member ? "Member updated." : "Member added.");
     } catch (err) { setError(typeof err.response?.data?.error === "string" ? err.response.data.error : "Unable to save member. Please try again."); }
     finally { setBusy(false); }
   }
   return <Modal title={t(member ? "Edit member" : "Add member")} close={close} busy={busy} wide><form onSubmit={save}>{error && <p className="notice error" role="alert">{t(error)}</p>}<fieldset disabled={busy} className="editor-fields">
-    {groups.map(([title, fields]) => <section className="editor-section" key={title}><h3>{t(title)}</h3><div className="editor-grid">{fields.map(([key, label, type = "text", required]) => <label key={key} className={`field ${type === "textarea" ? "full-width" : ""}`}>{t(label)}{type === "gender" ? <select value={form[key]} onChange={e => change(key, e.target.value)}><option value="">{t("Select gender")}</option>{["Male", "Female", "Other"].map(value => <option key={value} value={value}>{t(value)}</option>)}</select> : type === "textarea" ? <textarea rows="3" value={form[key]} onChange={e => change(key, e.target.value)} /> : <input type={type} required={required} min={type === "number" ? 18 : undefined} max={type === "number" ? 100 : undefined} maxLength={type !== "number" ? 500 : undefined} value={form[key]} onChange={e => change(key, e.target.value)} />}</label>)}</div></section>)}
-    {!member && <label className="field">{t("Password")}<input type="password" autoComplete="new-password" required minLength="8" value={password} onChange={e => setPassword(e.target.value)} /></label>}<label className="check-field"><input type="checkbox" checked={premium} onChange={e => setPremium(e.target.checked)} />{t("Premium membership")}</label>
+    {memberGroups.map(([title, fields]) => <section className="editor-section" key={title}><h3>{t(title)}</h3><div className="editor-grid">{fields.map(([key, label, type = "text", required]) => {
+      const ageField = ["age", "preferredAgeFrom", "preferredAgeTo"].includes(key);
+      return <label key={key} className={type === "checkbox" ? "check-field" : `field ${type === "textarea" ? "full-width" : ""}`}>{type !== "checkbox" && t(label)}
+        {Array.isArray(type) ? <select value={form[key]} onChange={e => change(key, e.target.value)}><option value="">{t("Select")}</option>{!type.includes(form[key]) && form[key] && <option value={form[key]}>{form[key]}</option>}{type.map(value => <option key={value} value={value}>{t(value)}</option>)}</select>
+          : type === "checkbox" ? <><input type="checkbox" checked={!!form[key]} onChange={e => change(key, e.target.checked)} />{t(label)}</>
+          : type === "textarea" ? <textarea rows="3" value={form[key]} onChange={e => change(key, e.target.value)} />
+          : <input type={type} required={required} min={type === "number" ? ageField ? 18 : 0 : undefined} max={type === "number" && ageField ? 100 : undefined} maxLength={type !== "number" ? 500 : undefined} value={form[key]} onChange={e => change(key, e.target.value)} />}
+      </label>;
+    })}</div></section>)}
+    <section className="editor-section"><h3>{t("Photos and documents")}</h3><div className="editor-grid">{memberUploads.map(([key, label, multiple]) => <div className="upload-field" key={key}><label className="field">{t(label)}<input type="file" multiple={multiple} accept={key === "horoscopeFile" ? ".pdf,.jpg,.jpeg,.png,.webp" : ".jpg,.jpeg,.png,.webp"} onChange={e => {
+      const chosen = Array.from(e.target.files || []);
+      if (chosen.length > (multiple ? 10 : 1) || chosen.some(file => file.size > 10 * 1024 * 1024)) {
+        setError("Each file must be 10 MB or smaller, with at most 10 photos per category."); setFiles(current => ({ ...current, [key]: [] })); e.target.value = ""; return;
+      }
+      setError(""); setFiles(current => ({ ...current, [key]: chosen }));
+    }} /></label>{member?.[key] && <div className="existing-uploads">{(Array.isArray(member[key]) ? member[key] : [member[key]]).filter(url => /^https?:\/\//i.test(url)).map((url, index) => <a key={url + index} href={url} target="_blank" rel="noopener noreferrer" title={t(label)}>{key === "horoscopeFile" ? <><FiExternalLink />{t("Horoscope file")}</> : <img src={url} alt={`${t(label)} ${index + 1}`} />}</a>)}</div>}</div>)}</div></section>
+    {!member && <label className="field">{t("Password")}<input type="password" autoComplete="new-password" required minLength="8" value={password} onChange={e => setPassword(e.target.value)} /></label>}
     </fieldset><div className="dialog-actions"><button type="button" className="button" disabled={busy} onClick={close}>{t("Cancel")}</button><button className="button primary" disabled={busy}><FiSave />{t(busy ? "Saving..." : "Save member")}</button></div></form></Modal>;
 }
 export function DeleteMember({ member, close, complete }) {
