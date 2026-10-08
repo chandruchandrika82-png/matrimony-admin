@@ -32,12 +32,13 @@ export default function MemberEditor({ member, close, complete }) {
   }
   return <Modal title={t(member ? "Edit member" : "Add member")} close={close} busy={busy} wide><form onSubmit={save}>{error && <p className="notice error" role="alert">{t(error)}</p>}<fieldset disabled={busy} className="editor-fields">
     {memberGroups.map(([title, fields]) => <section className="editor-section" key={title}><h3>{t(title)}</h3><div className="editor-grid">{fields.map(([key, label, type = "text", required]) => {
+      if (key.startsWith("job") && !["Job", "Both", "Private Job", "Government Job", "Professional", "Self Employed"].includes(form.occupationType)) return null;
       const ageField = ["age", "preferredAgeFrom", "preferredAgeTo"].includes(key);
       return <label key={key} className={type === "checkbox" ? "check-field" : `field ${type === "textarea" ? "full-width" : ""}`}>{type !== "checkbox" && t(label)}
         {Array.isArray(type) ? <select value={form[key]} onChange={e => change(key, e.target.value)}><option value="">{t("Select")}</option>{!type.includes(form[key]) && form[key] && <option value={form[key]}>{form[key]}</option>}{type.map(value => <option key={value} value={value}>{t(value)}</option>)}</select>
           : type === "checkbox" ? <><input type="checkbox" checked={!!form[key]} onChange={e => change(key, e.target.checked)} />{t(label)}</>
           : type === "textarea" ? <textarea rows="3" value={form[key]} onChange={e => change(key, e.target.value)} />
-          : <input type={type} required={required} min={type === "number" ? ageField ? 18 : 0 : undefined} max={type === "number" && ageField ? 100 : undefined} maxLength={type !== "number" ? 500 : undefined} value={form[key]} onChange={e => change(key, e.target.value)} />}
+          : <input step={key === "jobExperience" ? "any" : undefined} type={type} required={required} min={type === "number" ? ageField ? 18 : 0 : undefined} max={type === "number" && ageField ? 100 : undefined} maxLength={type !== "number" ? 500 : undefined} value={form[key]} onChange={e => change(key, e.target.value)} />}
       </label>;
     })}</div></section>)}
     <section className="editor-section"><h3>{t("Photos and documents")}</h3><div className="editor-grid">{memberUploads.map(([key, label, multiple]) => <div className="upload-field" key={key}><label className="field">{t(label)}<input type="file" multiple={multiple} accept={key === "horoscopeFile" ? ".pdf,.jpg,.jpeg,.png,.webp" : ".jpg,.jpeg,.png,.webp"} onChange={e => {

@@ -107,6 +107,8 @@ test('complete member details and uploaded documents are submitted together', as
   api.get.mockResolvedValue({ data: [] }); api.post.mockResolvedValue({ data: {} });
   render(<App />); await screen.findByText('No members found.');
   fireEvent.click(screen.getByRole('button', { name: 'Add member' }));
+  expect(screen.queryByLabelText('Job category')).not.toBeInTheDocument();
+  fireEvent.change(screen.getByRole('combobox', { name: 'Occupation', exact: true }), { target: { value: 'Job' } });
   const labels = Array.from(screen.getByRole('dialog').querySelectorAll('label'));
   for (const [, fields] of memberGroups) for (const [, label] of fields) expect(labels.some(element => element.textContent.trim().startsWith(label) && element.querySelector('input, select, textarea'))).toBe(true);
   fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Full Member' } });
@@ -114,6 +116,9 @@ test('complete member details and uploaded documents are submitted together', as
   fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'test-password' } });
   fireEvent.change(screen.getByLabelText('Business type'), { target: { value: 'Retail' } });
   fireEvent.change(screen.getByLabelText('Father occupation'), { target: { value: 'Farmer' } });
+  fireEvent.change(screen.getByLabelText('Job category'), { target: { value: 'Engineering' } });
+  fireEvent.change(screen.getByLabelText('Job location'), { target: { value: 'Chennai' } });
+  fireEvent.change(screen.getByLabelText('Experience (years)'), { target: { value: '3' } });
   fireEvent.change(screen.getByLabelText('Preferred age from'), { target: { value: '22' } });
   fireEvent.click(screen.getByLabelText('Hide mobile'));
   fireEvent.change(screen.getByLabelText('Horoscope file'), { target: { files: [new File(['fixture'], 'horoscope.pdf', { type: 'application/pdf' })] } });
@@ -122,4 +127,5 @@ test('complete member details and uploaded documents are submitted together', as
   const submitted = api.post.mock.calls[0][1];
   expect(submitted).toBeInstanceOf(FormData);
   expect(submitted.get('businessType')).toBe('Retail'); expect(submitted.get('fatherOccupation')).toBe('Farmer'); expect(submitted.get('preferredAgeFrom')).toBe('22'); expect(submitted.get('hideMobile')).toBe('true'); expect(submitted.get('horoscopeFile').name).toBe('horoscope.pdf');
+  expect(submitted.get('occupationType')).toBe('Job'); expect(submitted.get('jobCategory')).toBe('Engineering'); expect(submitted.get('jobLocation')).toBe('Chennai'); expect(submitted.get('jobExperience')).toBe('3');
 });
