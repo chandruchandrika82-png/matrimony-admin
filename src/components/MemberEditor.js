@@ -13,11 +13,15 @@ export default function MemberEditor({ member, close, complete }) {
   const [form, setForm] = useState(() => initialMemberForm(member));
   const [files, setFiles] = useState({});
   const [password, setPassword] = useState(""); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
+  const [changePassword, setChangePassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
   function change(key, value) { setForm(current => ({ ...current, [key]: value })); }
   async function save(e) {
-    e.preventDefault(); if (busy) return; setBusy(true); setError("");
+    e.preventDefault(); if (busy) return;
+    if (member && changePassword && password !== confirmPassword) { setError("Passwords do not match"); return; }
+    setBusy(true); setError("");
     try {
-      let data = { ...form, ...(!member ? { password } : {}) };
+      let data = { ...form, ...(!member || changePassword ? { password } : {}) };
       if (Object.values(files).some(list => list.length)) {
         const multipart = new FormData();
         Object.entries(data).forEach(([key, value]) => multipart.append(key, value));
@@ -49,6 +53,7 @@ export default function MemberEditor({ member, close, complete }) {
       setError(""); setFiles(current => ({ ...current, [key]: chosen }));
     }} /></label>{member?.[key] && <div className="existing-uploads">{(Array.isArray(member[key]) ? member[key] : [member[key]]).filter(url => /^https?:\/\//i.test(url)).map((url, index) => <a key={url + index} href={url} target="_blank" rel="noopener noreferrer" title={t(label)}>{key === "horoscopeFile" ? <><FiExternalLink />{t("Horoscope file")}</> : <img src={url} alt={`${t(label)} ${index + 1}`} />}</a>)}</div>}</div>)}</div></section>
     {!member && <label className="field">{t("Password")}<input type="password" autoComplete="new-password" required minLength="8" value={password} onChange={e => setPassword(e.target.value)} /></label>}
+    {member && <section className="editor-section"><label className="check-field"><input type="checkbox" checked={changePassword} onChange={e => { setChangePassword(e.target.checked); setPassword(""); setConfirmPassword(""); setError(""); }} />{t("Change password")}</label>{changePassword && <div className="editor-grid password-change-fields"><label className="field">{t("New password")}<input type="password" autoComplete="new-password" required minLength="8" value={password} onChange={e => setPassword(e.target.value)} /></label><label className="field">{t("Confirm password")}<input type="password" autoComplete="new-password" required minLength="8" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} /></label></div>}</section>}
     </fieldset><div className="dialog-actions"><button type="button" className="button" disabled={busy} onClick={close}>{t("Cancel")}</button><button className="button primary" disabled={busy}><FiSave />{t(busy ? "Saving..." : "Save member")}</button></div></form></Modal>;
 }
 export function DeleteMember({ member, close, complete }) {

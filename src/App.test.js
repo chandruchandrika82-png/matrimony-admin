@@ -10,6 +10,46 @@ beforeEach(() => {
   window.history.replaceState({}, '', '/');
   jest.clearAllMocks();
 });
+test('edit password change is optional and requires matching confirmation', async () => {
+  localStorage.setItem('adminToken', 'test-session'); window.history.replaceState({}, '', '/members');
+  api.get.mockResolvedValue({ data: [{ _id: '1', name: 'Anu', email: 'anu@example.com' }] }); api.put.mockResolvedValue({ data: {} });
+  render(<App />); await screen.findByText('Anu'); fireEvent.click(screen.getByRole('button', { name: 'Edit member Anu' }));
+  expect(screen.queryByLabelText('New password')).not.toBeInTheDocument();
+  fireEvent.click(screen.getByLabelText('Change password'));
+  fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'new-test-password' } });
+  fireEvent.change(screen.getByLabelText('Confirm password'), { target: { value: 'different-password' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save member' })); expect(screen.getByRole('alert')).toHaveTextContent('Passwords do not match'); expect(api.put).not.toHaveBeenCalled();
+  fireEvent.change(screen.getByLabelText('Confirm password'), { target: { value: 'new-test-password' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save member' })); await screen.findByText('Member updated.');
+  expect(api.put).toHaveBeenCalledWith('/admin/members/1', expect.objectContaining({ password: 'new-test-password' }));
+});
+test('member view displays complete profile details and all photo groups without passwords', async () => {
+  localStorage.setItem('adminToken', 'test-session'); window.history.replaceState({}, '', '/members');
+  api.get.mockResolvedValue({ data: [{ _id: '1', name: 'Anu', email: 'anu@example.com', fatherOccupation: 'Farmer', jobCategory: 'Engineering', preferredAgeFrom: 25, brothersCount: 0, hideMobile: false, image: 'https://example.com/main.jpg', profilePhotos: ['https://example.com/profile.jpg'], familyPhotos: ['https://example.com/family.jpg'], officePhotos: ['https://example.com/office.jpg'], horoscopeFile: 'https://example.com/horoscope.pdf', password: 'must-not-be-visible' }] });
+  render(<App />); await screen.findByText('Anu');
+  fireEvent.click(screen.getByRole('button', { name: 'View Anu' }));
+  const dialog = within(screen.getByRole('dialog'));
+  expect(dialog.getByText('Farmer')).toBeInTheDocument(); expect(dialog.getByText('Engineering')).toBeInTheDocument(); expect(dialog.getByText('25')).toBeInTheDocument(); expect(dialog.getByText('0')).toBeInTheDocument();
+  expect(dialog.getAllByRole('img')).toHaveLength(4); expect(dialog.getByRole('link', { name: 'Horoscope file' })).toHaveAttribute('href', 'https://example.com/horoscope.pdf');
+  expect(dialog.queryByText('must-not-be-visible')).not.toBeInTheDocument();
+});
+test('searches exact ages in members and premium directory without partial age matches', async () => {
+  localStorage.setItem('adminToken', 'test-session'); window.history.replaceState({}, '', '/members');
+  api.get.mockResolvedValue({ data: [
+    { _id: '1', name: 'Anu', email: 'anu@example.com', age: 30, isPremium: true },
+    { _id: '2', name: 'Bala', email: 'bala@example.com', age: '30', isPremium: false },
+    { _id: '3', name: 'Devi', email: 'devi@example.com', age: 31, isPremium: true },
+    { _id: '4', name: 'Unknown', email: 'unknown@example.com' }
+  ] });
+  render(<App />); await screen.findByText('Anu');
+  const search = screen.getByRole('textbox', { name: 'Search members' });
+  fireEvent.change(search, { target: { value: ' 30 ' } });
+  expect(screen.getByText('Anu')).toBeInTheDocument(); expect(screen.getByText('Bala')).toBeInTheDocument(); expect(screen.queryByText('Devi')).not.toBeInTheDocument(); expect(screen.queryByText('Unknown')).not.toBeInTheDocument();
+  fireEvent.change(search, { target: { value: '3' } }); expect(screen.getByText('No members found.')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('link', { name: 'Premium', exact: true }));
+  fireEvent.change(screen.getByRole('textbox', { name: 'Search members' }), { target: { value: '30' } });
+  expect(screen.getByText('Anu')).toBeInTheDocument(); expect(screen.queryByText('Bala')).not.toBeInTheDocument(); expect(screen.queryByText('Devi')).not.toBeInTheDocument();
+});
 test('requires login before displaying the administration workspace', () => {
   render(<App />);
   expect(screen.getByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();

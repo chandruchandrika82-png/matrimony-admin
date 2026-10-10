@@ -41,7 +41,8 @@ async function main() {
     Object.assign(data, { occupationType: 'Job', companyName: 'Test Company', jobType: 'Full-time', jobCategory: 'Engineering', jobLocation: 'Chennai', jobExperience: '3.5' });
     let checks = 0;
     async function request(method, suffix, body, token, status) {
-      const result = await fetch(base + suffix, { method, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
+      const payload = method === 'PUT' && body === data ? Object.fromEntries(Object.entries(body).filter(([key]) => key !== 'password')) : body;
+      const result = await fetch(base + suffix, { method, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, ...(payload ? { body: JSON.stringify(payload) } : {}) });
       assert.equal(result.status, status); checks++; return result.json();
     }
     for (const [method, suffix] of [['POST', ''], ['PUT', '/' + memberId], ['DELETE', '/' + memberId]]) {
@@ -69,9 +70,14 @@ async function main() {
     await request('PUT', '/' + memberId, data, admin, 200);
     assert(matchesMember(updated.query)); assert(!('password' in updated.update.$set)); assert(!('role' in updated.update.$set)); assert(!('favoriteProfiles' in updated.update.$set));
     assert(!('image' in updated.update.$set)); assert(!('$push' in updated.update));
+    const changedPassword = 'changed-test-password';
+    await request('PUT', '/' + memberId, { ...data, password: changedPassword }, admin, 200);
+    assert.notEqual(updated.update.$set.password, changedPassword); assert(await bcrypt.compare(changedPassword, updated.update.$set.password));
+    await request('PUT', '/' + memberId, { ...data, password: 'short' }, admin, 400);
+    await request('PUT', '/' + memberId, { ...data, password: 'x'.repeat(73) }, admin, 400);
     async function upload(method, suffix) {
       const body = new FormData();
-      Object.entries(data).filter(([key]) => !['role', 'favoriteProfiles'].includes(key)).forEach(([key, value]) => body.append(key, value));
+      Object.entries(data).filter(([key]) => !['role', 'favoriteProfiles'].includes(key) && !(method === 'PUT' && key === 'password')).forEach(([key, value]) => body.append(key, value));
       body.append('image', new Blob(['fixture'], { type: 'image/jpeg' }), 'test.jpg');
       body.append('familyPhotos', new Blob(['fixture'], { type: 'image/jpeg' }), 'family.jpg');
       body.append('horoscopeFile', new Blob(['fixture'], { type: 'application/pdf' }), 'horoscope.pdf');
