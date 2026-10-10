@@ -16,6 +16,12 @@ async function main() {
       for (const img of await dialog.locator('.member-photo-grid img').all()) await img.evaluate(img => img.decode());
       if (await dialog.evaluate(el => el.scrollWidth > el.clientWidth)) throw new Error('Member view overflow');
       await page.screenshot({ path: `artifacts/member-photos-${width}.png` });
+      const close = dialog.getByRole('button', { name: 'Close', exact: true });
+      const bounds = await close.boundingBox();
+      if (!bounds || bounds.y < 0 || bounds.y + bounds.height > 900) throw new Error('Close button moved outside the viewport');
+      if (await dialog.locator('.dialog-scroll-body').evaluate(el => el.scrollTop <= 0)) throw new Error('Profile body did not scroll');
+      await close.click();
+      if (await dialog.count()) throw new Error('Close button did not dismiss the scrolled profile');
     }
     console.log('Full member details and rendered photo groups verified at desktop/mobile sizes with fixtures.');
   } finally { await browser.close(); }

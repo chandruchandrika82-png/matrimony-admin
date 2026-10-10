@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const Context = createContext({ language: "en", setLanguage: () => {}, t: text => text });
 const tamil = {
+  "No photo": "புகைப்படம் இல்லை", "years": "வயது",
   "Change password": "கடவுச்சொல்லை மாற்று", "New password": "புதிய கடவுச்சொல்", "Confirm password": "கடவுச்சொல்லை உறுதிப்படுத்து", "Passwords do not match": "கடவுச்சொற்கள் பொருந்தவில்லை", "Password must be 8 characters or more and at most 72 UTF-8 bytes": "கடவுச்சொல் குறைந்தது 8 எழுத்துகள் மற்றும் அதிகபட்சம் 72 UTF-8 பைட்டுகள் இருக்க வேண்டும்",
   "Search name, email, district or age": "பெயர், மின்னஞ்சல், மாவட்டம் அல்லது வயது",
   "Job": "வேலை", "Both": "இரண்டும்", "Job type": "வேலை வகை", "Job category": "வேலைப் பிரிவு", "Job location": "வேலை இருப்பிடம்", "Experience (years)": "அனுபவம் (ஆண்டுகள்)", "Full-time": "முழுநேரம்", "Part-time": "பகுதிநேரம்", "Contract": "ஒப்பந்தம்", "Freelance": "சுயாதீன வேலை", "Internship": "பயிற்சி வேலை",

@@ -10,6 +10,17 @@ beforeEach(() => {
   window.history.replaceState({}, '', '/');
   jest.clearAllMocks();
 });
+test('member directory uses photo cards with safe fallback and member actions', async () => {
+  localStorage.setItem('adminToken', 'test-session'); window.history.replaceState({}, '', '/members');
+  api.get.mockResolvedValue({ data: [{ _id: '1', name: 'Anu', email: 'anu@example.com', age: 30, image: 'https://example.com/photo.jpg' }, { _id: '2', name: 'Bala', email: 'bala@example.com', profilePhotos: ['https://example.com/first.jpg'] }] });
+  render(<App />); await screen.findByText('Anu');
+  const anu = within(screen.getByRole('article', { name: 'Anu' }));
+  expect(anu.getByRole('img', { name: 'Anu' })).toHaveAttribute('src', 'https://example.com/photo.jpg');
+  expect(anu.getByRole('button', { name: 'View Anu' })).toBeInTheDocument(); expect(anu.getByRole('button', { name: 'Edit member Anu' })).toBeInTheDocument(); expect(anu.getByRole('button', { name: 'Delete member Anu' })).toBeInTheDocument();
+  expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  expect(screen.getByRole('img', { name: 'Bala' })).toHaveAttribute('src', 'https://example.com/first.jpg');
+  fireEvent.error(anu.getByRole('img')); expect(anu.getByText('No photo')).toBeInTheDocument();
+});
 test('edit password change is optional and requires matching confirmation', async () => {
   localStorage.setItem('adminToken', 'test-session'); window.history.replaceState({}, '', '/members');
   api.get.mockResolvedValue({ data: [{ _id: '1', name: 'Anu', email: 'anu@example.com' }] }); api.put.mockResolvedValue({ data: {} });

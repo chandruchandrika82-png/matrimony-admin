@@ -1,14 +1,7 @@
 import { FiExternalLink } from "react-icons/fi";
 import { memberGroups } from "./MemberFields";
 import { useLanguage } from "../Language";
-import { API_URL } from "../services/api";
-function mediaUrl(value) {
-  if (typeof value !== "string" || !value.trim()) return null;
-  try {
-    const url = new URL(value, new URL(API_URL).origin);
-    return ["https:", "http:"].includes(url.protocol) ? url.href : null;
-  } catch { return null; }
-}
+import { memberMediaUrl as mediaUrl } from "../services/media";
 export default function MemberProfile({ member }) {
   const { t } = useLanguage();
   function display(value) {

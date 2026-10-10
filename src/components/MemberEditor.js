@@ -3,10 +3,10 @@ import { FiSave, FiX, FiTrash2, FiExternalLink } from "react-icons/fi";
 import api from "../services/api";
 import { useLanguage } from "../Language";
 import { memberGroups, memberUploads, initialMemberForm } from "./MemberFields";
-export function Modal({ title, close, busy, children, wide = false }) {
+export function Modal({ title, close, busy, children, wide = false, fixedHeader = false }) {
   const ref = useRef(null); const { t } = useLanguage();
   useEffect(() => { const previous = document.activeElement; ref.current.showModal(); return () => previous?.focus(); }, []);
-  return <dialog ref={ref} className={`profile-dialog ${wide ? "member-editor" : ""}`} aria-label={title} onCancel={e => { e.preventDefault(); if (!busy) close(); }}><div className="section-heading"><h2>{title}</h2><button type="button" className="icon-button" disabled={busy} title={t("Close")} aria-label={t("Close")} onClick={close}><FiX /></button></div>{children}</dialog>;
+  return <dialog ref={ref} className={`profile-dialog ${wide ? "member-editor" : ""} ${fixedHeader ? "fixed-header-dialog" : ""}`} aria-label={title} onCancel={e => { e.preventDefault(); if (!busy) close(); }}><div className="section-heading"><h2>{title}</h2><button type="button" className="icon-button" disabled={busy} title={t("Close")} aria-label={t("Close")} onClick={close}><FiX /></button></div>{fixedHeader ? <div className="dialog-scroll-body">{children}</div> : children}</dialog>;
 }
 export default function MemberEditor({ member, close, complete }) {
   const { t } = useLanguage();
