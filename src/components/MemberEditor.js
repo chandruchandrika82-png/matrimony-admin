@@ -34,7 +34,7 @@ export default function MemberEditor({ member, close, complete }) {
     } catch (err) { setError(typeof err.response?.data?.error === "string" ? err.response.data.error : "Unable to save member. Please try again."); }
     finally { setBusy(false); }
   }
-  return <Modal title={t(member ? "Edit member" : "Add member")} close={close} busy={busy} wide><form onSubmit={save}>{error && <p className="notice error" role="alert">{t(error)}</p>}<fieldset disabled={busy} className="editor-fields">
+  return <Modal title={t(member ? "Edit member" : "Add member")} close={close} busy={busy} wide fixedHeader><form onSubmit={save}>{error && <p className="notice error" role="alert">{t(error)}</p>}<fieldset disabled={busy} className="editor-fields">
     {memberGroups.map(([title, fields]) => <section className="editor-section" key={title}><h3>{t(title)}</h3><div className="editor-grid">{fields.map(([key, label, type = "text", required]) => {
       if (key.startsWith("job") && !["Job", "Both", "Private Job", "Government Job", "Professional", "Self Employed"].includes(form.occupationType)) return null;
       const ageField = ["age", "preferredAgeFrom", "preferredAgeTo"].includes(key);
