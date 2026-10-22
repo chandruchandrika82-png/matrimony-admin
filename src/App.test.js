@@ -10,6 +10,20 @@ beforeEach(() => {
   window.history.replaceState({}, '', '/');
   jest.clearAllMocks();
 });
+test('overview uses live member totals, latest profiles, and refresh without including administrators', async () => {
+  localStorage.setItem('adminToken', 'test-session');
+  const rows = [{ _id: '1', name: 'Older Member', createdAt: '2026-01-01', isPremium: false, gender: 'Male', district: 'Namakkal' }, { _id: '2', name: 'Latest Member', createdAt: '2026-10-22', isPremium: true, gender: 'Female', district: 'Erode' }, { _id: '3', name: 'Admin Account', role: 'admin' }];
+  api.get.mockResolvedValueOnce({ data: rows }).mockResolvedValue({ data: [...rows, { _id: '4', name: 'New Member', isPremium: true }] });
+  render(<App />);
+  await screen.findByRole('img', { name: 'Premium: 50%' });
+  expect(within(screen.getByText('Total members').closest('article')).getByText('2')).toBeInTheDocument();
+  expect(screen.queryByText('Admin Account')).not.toBeInTheDocument();
+  expect(within(screen.getAllByRole('row')[1]).getByText('Latest Member')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Refresh members' }));
+  await screen.findByRole('img', { name: 'Premium: 67%' });
+  expect(api.get).toHaveBeenCalledTimes(2);
+  expect(screen.queryByRole('button', { name: 'Go back' })).not.toBeInTheDocument();
+});
 test('member directory uses photo cards with safe fallback and member actions', async () => {
   localStorage.setItem('adminToken', 'test-session'); window.history.replaceState({}, '', '/members');
   api.get.mockResolvedValue({ data: [{ _id: '1', name: 'Anu', email: 'anu@example.com', age: 30, image: 'https://example.com/photo.jpg' }, { _id: '2', name: 'Bala', email: 'bala@example.com', profilePhotos: ['https://example.com/first.jpg'] }] });
