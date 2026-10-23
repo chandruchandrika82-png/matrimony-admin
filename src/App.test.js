@@ -10,6 +10,26 @@ beforeEach(() => {
   window.history.replaceState({}, '', '/');
   jest.clearAllMocks();
 });
+test('recent profiles search finds older members and carries the query to the member directory', async () => {
+  localStorage.setItem('adminToken', 'test-session');
+  const rows = Array.from({ length: 12 }, (_, i) => ({ _id: String(i), name: `Member ${i}`, email: `member${i}@example.com`, age: i === 0 ? 30 : 31, district: i === 0 ? 'Erode' : 'Namakkal', createdAt: new Date(Date.UTC(2026, 9, i + 1)).toISOString() }));
+  api.get.mockResolvedValue({ data: rows }); render(<App />);
+  await screen.findByText('Member 11');
+  expect(screen.queryByText('Member 0')).not.toBeInTheDocument();
+  const input = screen.getByRole('textbox', { name: 'Search recent profiles' });
+  fireEvent.change(input, { target: { value: 'Erode' } });
+  expect(screen.getByText('Member 0')).toBeInTheDocument();
+  expect(screen.queryByText('Member 11')).not.toBeInTheDocument();
+  expect(screen.getByRole('img', { name: 'Premium: 0%' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+  expect(screen.getByText('Member 11')).toBeInTheDocument();
+  fireEvent.change(input, { target: { value: '30' } });
+  fireEvent.click(screen.getByRole('link', { name: 'View all' }));
+  expect(screen.getByRole('textbox', { name: 'Search members' })).toHaveValue('30');
+  expect(screen.getAllByRole('article')).toHaveLength(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+  expect(screen.getAllByRole('article')).toHaveLength(10);
+});
 test('overview uses live member totals, latest profiles, and refresh without including administrators', async () => {
   localStorage.setItem('adminToken', 'test-session');
   const rows = [{ _id: '1', name: 'Older Member', createdAt: '2026-01-01', isPremium: false, gender: 'Male', district: 'Namakkal' }, { _id: '2', name: 'Latest Member', createdAt: '2026-10-22', isPremium: true, gender: 'Female', district: 'Erode' }, { _id: '3', name: 'Admin Account', role: 'admin' }];
