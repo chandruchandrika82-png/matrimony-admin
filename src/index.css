@@ -24,3 +24,6 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.admin-sidebar .sidebar-brand h2{font-size:15px;line-height:1.25}
+.admin-login-page .login-brand{max-width:560px;font-size:20px;line-height:1.3;text-align:center}
+@media(max-width:420px){.admin-login-page .login-brand{font-size:17px}}

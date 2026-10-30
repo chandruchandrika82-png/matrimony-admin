@@ -97,6 +97,8 @@ test('searches exact ages in members and premium directory without partial age m
 });
 test('requires login before displaying the administration workspace', () => {
   render(<App />);
+  expect(screen.getByText('New Varan Kongu Thirumana Matrimony')).toBeInTheDocument();
+  expect(screen.queryByText('Namakkal Matrimony')).not.toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();
   expect(api.get).not.toHaveBeenCalled();
 });
