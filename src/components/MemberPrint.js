@@ -20,6 +20,12 @@ function PrintPhoto({ src, label }) {
   return failed ? <p className="print-photo-fallback">{label}</p>
     : <img src={src} alt={label} onError={() => setFailed(true)} />;
 }
+function HoroscopeChart({ title, member, navamsa = false }) {
+  const cells = navamsa
+    ? ["", member.rashi || "Rasi", "Sani", "Kethu", "Sukra", "Lagna", "", "Chandra", "Guru", "", "Rahu", "Surya"]
+    : ["", member.rashi || "Rasi", "Kethu", "Guru", "Chandra", "Lagna", "", "Sukra", "Sani", "", "Rahu", "Surya"];
+  return <section className="member-print-chart"><h4>{title}</h4><div className="member-print-chart-grid">{cells.map((cell, index) => <span key={`${title}-${index}`}>{cell}</span>)}<strong>{member.rashi || "Rasi"}</strong></div></section>;
+}
 function valueOf(member, keys) {
   if (keys.some(key => ["annualIncome", "personalIncome"].includes(key)) && hidden(member.hideIncome)) return "";
   if (keys.includes("companyName") && hidden(member.hideCompany)) return "";
@@ -101,6 +107,7 @@ export default function MemberPrint({ member, close }) {
         </div>
       </div></div>
       <section className="member-print-section member-print-box"><h3>{t("Jathagam")}</h3>{member.horoscopeFile && /^https?:\/\//i.test(memberMediaUrl(member.horoscopeFile) || "") && /\.(jpe?g|png|webp)(\?|$)/i.test(memberMediaUrl(member.horoscopeFile)) ? <PrintPhoto src={memberMediaUrl(member.horoscopeFile)} label={t("Horoscope file")} /> : <p>{t(member.horoscopeFile ? "Available" : "Not provided")}</p>}</section>
+      <div className="member-print-charts"><HoroscopeChart title="Rasi chart" member={member} /><HoroscopeChart title="Navamsa chart" member={member} navamsa /></div>
       {photos.length > 1 && <section className="member-print-section"><h3>{t("Photos and documents")}</h3><div className="member-print-gallery">{photos.slice(1).map((url, index) => <PrintPhoto key={url} src={url} label={`${t("Profile")} ${index + 1}`} />)}</div></section>}
     </article>
   </dialog>, document.body);
