@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { FiPrinter, FiX } from "react-icons/fi";
-import { memberGroups } from "./MemberFields";
 import { memberMediaUrl } from "../services/media";
 import { useLanguage } from "../Language";
 import "./MemberPrint.css";
@@ -20,6 +19,16 @@ function PrintPhoto({ src, label }) {
   const [failed, setFailed] = useState(false);
   return failed ? <p className="print-photo-fallback">{label}</p>
     : <img src={src} alt={label} onError={() => setFailed(true)} />;
+}
+function valueOf(member, keys) {
+  for (const key of keys) {
+    if (key.startsWith("_") || member?.[key] === undefined || member?.[key] === null) continue;
+    if (String(member[key]).trim()) return member[key];
+  }
+  if (keys.includes("_heightWeight")) return [member.height, member.weight].filter(Boolean).join(" / ");
+  if (keys.includes("_siblings")) return `Male: ${member.brothersCount || 0} (${member.brothersMarried || 0} married); Female: ${member.sistersCount || 0} (${member.sistersMarried || 0} married)`;
+  if (keys.includes("_property")) return [member.landAcres && `Land: ${member.landAcres}`, member.house, member.vehicle, member.otherAssets].filter(Boolean).join(", ");
+  return "";
 }
 export default function MemberPrint({ member, close }) {
   const { t } = useLanguage();
@@ -63,9 +72,9 @@ export default function MemberPrint({ member, close }) {
   useEffect(() => {
     if (!localStorage.getItem("adminToken")) close();
   }, [close]);
-  function section([title, fields]) {
+  function section(title, fields) {
     return <section className="member-print-section" key={title}><h3>{t(title)}</h3><dl>
-      {fields.map(([key, label]) => <div className="member-print-field" key={key}><dt>{t(label)}</dt><dd>{printValue(member, key, t)}</dd></div>)}
+      {fields.map(([label, keys]) => <div className="member-print-field" key={label}><dt>{t(label)}</dt><dd>{valueOf(member, keys) || t("Not provided")}</dd></div>)}
     </dl></section>;
   }
   if (!localStorage.getItem("adminToken")) return null;
@@ -80,15 +89,17 @@ export default function MemberPrint({ member, close }) {
       <div className="member-print-intro"><div><h2>{member.name || t("Unnamed member")}</h2>
         <p>{[member.age !== null && member.age !== undefined && member.age !== "" ? `${member.age} ${t("years")}` : null, member.gender, member.currentCity || member.district].filter(Boolean).join(" · ") || t("Not provided")}</p></div>
         {photos.length ? <PrintPhoto src={photos[0]} label={t("Main photo")} /> : <p className="print-photo-fallback">{t(permitted ? "No photo" : "Private")}</p>}</div>
-      {[memberGroups.slice(0, 5), memberGroups.slice(5)].map((groups, page) => <div className={`member-print-page ${page ? "member-print-page-two" : ""}`} key={page}>
-        <div className={page === 0 ? "member-print-columns member-print-first-page-columns" : "member-print-columns"}>
-          {page === 0 ? [[groups[0], groups[1], groups[3]], [groups[2], groups[4]]].map((column, index) =>
-            <div className="member-print-column" data-print-column={index === 0 ? "personal-family" : "career-religion"} key={index}>{column.map(section)}</div>)
-            : groups.map(section)}
+      <div className="member-print-page"><div className="member-print-columns member-print-first-page-columns">
+        <div className="member-print-column" data-print-column="personal-family">
+          {section("Profile details", [["Name", ["name"]], ["Gender", ["gender"]], ["Age", ["age"]], ["Birth date", ["dob"]], ["Birth time", ["birthTime"]], ["Birth place", ["birthPlace"]], ["Height & weight", ["_heightWeight"]], ["Colour", ["colour", "color", "complexion"]], ["Blood group", ["bloodGroup"]], ["Personal income", ["personalIncome", "annualIncome"]]])}
+          {section("Family and work", [["Kulam", ["kulam", "caste", "subCaste"]], ["Kulam God", ["kulamGod", "kuladeivam"]], ["Degree", ["education"]], ["Business / work", ["occupationType", "companyName"]], ["Father name", ["fatherName"]], ["Father business", ["fatherOccupation"]], ["Father native", ["fatherNative"]], ["Mother name", ["motherName"]], ["Mother business", ["motherOccupation"]], ["Mother native", ["motherNative"]], ["Family income", ["familyIncome"]], ["Siblings", ["_siblings"]], ["Property details", ["_property"]], ["Expectations", ["expectations"]]])}
         </div>
-      </div>)}
+        <div className="member-print-column" data-print-column="career-religion">
+          {section("Horoscope", [["Lagna", ["lagnam"]], ["Rasi", ["rashi", "zodiac"]], ["Nakshatra", ["star"]], ["Tamil date", ["tamilDate"]]])}
+        </div>
+      </div></div>
       {photos.length > 1 && <section className="member-print-section"><h3>{t("Photos and documents")}</h3><div className="member-print-gallery">{photos.slice(1).map((url, index) => <PrintPhoto key={url} src={url} label={`${t("Profile")} ${index + 1}`} />)}</div></section>}
-      {member.horoscopeFile && <section className="member-print-section member-print-box"><h3>{t("Jathagam")}</h3>{/^https?:\/\//i.test(memberMediaUrl(member.horoscopeFile) || "") && /\.(jpe?g|png|webp)(\?|$)/i.test(memberMediaUrl(member.horoscopeFile)) ? <PrintPhoto src={memberMediaUrl(member.horoscopeFile)} label={t("Horoscope file")} /> : <p>{t("Available")}</p>}</section>}
+      <section className="member-print-section member-print-box"><h3>{t("Jathagam")}</h3>{member.horoscopeFile && /^https?:\/\//i.test(memberMediaUrl(member.horoscopeFile) || "") && /\.(jpe?g|png|webp)(\?|$)/i.test(memberMediaUrl(member.horoscopeFile)) ? <PrintPhoto src={memberMediaUrl(member.horoscopeFile)} label={t("Horoscope file")} /> : <p>{t(member.horoscopeFile ? "Available" : "Not provided")}</p>}</section>
     </article>
   </dialog>, document.body);
 }
