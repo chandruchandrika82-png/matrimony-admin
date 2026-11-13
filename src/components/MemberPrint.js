@@ -27,6 +27,10 @@ export default function MemberPrint({ member, close }) {
   const busy = useRef(false);
   const mounted = useRef(false);
   const [preparing, setPreparing] = useState(false);
+  const today = new Date().toISOString().slice(0, 10);
+  const [applyingDate, setApplyingDate] = useState(member.applyingDate || today);
+  const [expiryDate, setExpiryDate] = useState(member.reportExpiryDate || `${new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10)}`);
+  const profileNumber = String([...String(member._id || member.id || member.email || member.name || "profile")].reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) % 100000, 0)).padStart(5, "0");
   const permitted = !hidden(member.hidePhotos);
   const photos = permitted ? [...new Set([member.image, ...["profilePhotos", "familyPhotos", "officePhotos"]
     .flatMap(key => Array.isArray(member[key]) ? member[key] : [])].map(memberMediaUrl).filter(Boolean))] : [];
@@ -67,12 +71,12 @@ export default function MemberPrint({ member, close }) {
   if (!localStorage.getItem("adminToken")) return null;
   return createPortal(<dialog ref={ref} className="member-print-dialog" aria-label={t("Print profile")}
     onCancel={event => { event.preventDefault(); close(); }}>
-    <div className="member-print-toolbar"><button className="button primary" onClick={print} disabled={preparing}><FiPrinter />{t(preparing ? "Preparing print..." : "Print / Save as PDF")}</button>
+    <div className="member-print-toolbar"><div className="member-print-date-controls"><label>{t("Applying date")}<input type="date" value={applyingDate} onChange={event => setApplyingDate(event.target.value)} /></label><label>{t("Report expiry date")}<input type="date" value={expiryDate} onChange={event => setExpiryDate(event.target.value)} /></label></div><button className="button primary" onClick={print} disabled={preparing}><FiPrinter />{t(preparing ? "Preparing print..." : "Print / Save as PDF")}</button>
       <button className="button" onClick={close}><FiX />{t("Close")}</button></div>
     <article className="member-print-document" aria-label={t("Member profile")}>
       <header className="member-print-brand"><img src={`${process.env.PUBLIC_URL || ""}/logo.png`} alt="New Varan Kongu Thirumana Matrimony logo" />
         <div className="member-print-company"><h1>New Varan Kongu Thirumana Matrimony</h1><p>Namakkal</p><p>Phone: 9344973982</p><p className="member-print-document-label">{t("Member profile")}</p></div></header>
-      <div className="member-print-meta"><span>{t("Member profile")}</span><span>{t("Report date")}: {new Date().toLocaleDateString()}</span></div>
+      <div className="member-print-meta"><span>{t("Profile ID")}: NM-{profileNumber}</span><span>{t("Applying date")}: {applyingDate}</span><span>{t("Report expiry date")}: {expiryDate}</span></div>
       <div className="member-print-intro"><div><h2>{member.name || t("Unnamed member")}</h2>
         <p>{[member.age !== null && member.age !== undefined && member.age !== "" ? `${member.age} ${t("years")}` : null, member.gender, member.currentCity || member.district].filter(Boolean).join(" · ") || t("Not provided")}</p></div>
         {photos.length ? <PrintPhoto src={photos[0]} label={t("Main photo")} /> : <p className="print-photo-fallback">{t(permitted ? "No photo" : "Private")}</p>}</div>
@@ -84,7 +88,7 @@ export default function MemberPrint({ member, close }) {
         </div>
       </div>)}
       {photos.length > 1 && <section className="member-print-section"><h3>{t("Photos and documents")}</h3><div className="member-print-gallery">{photos.slice(1).map((url, index) => <PrintPhoto key={url} src={url} label={`${t("Profile")} ${index + 1}`} />)}</div></section>}
-      {member.horoscopeFile && <section className="member-print-section"><h3>{t("Horoscope file")}</h3><p>{t("Available")}</p></section>}
+      {member.horoscopeFile && <section className="member-print-section member-print-box"><h3>{t("Jathagam")}</h3>{/^https?:\/\//i.test(memberMediaUrl(member.horoscopeFile) || "") && /\.(jpe?g|png|webp)(\?|$)/i.test(memberMediaUrl(member.horoscopeFile)) ? <PrintPhoto src={memberMediaUrl(member.horoscopeFile)} label={t("Horoscope file")} /> : <p>{t("Available")}</p>}</section>}
     </article>
   </dialog>, document.body);
 }
