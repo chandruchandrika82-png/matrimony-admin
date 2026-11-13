@@ -21,6 +21,8 @@ function PrintPhoto({ src, label }) {
     : <img src={src} alt={label} onError={() => setFailed(true)} />;
 }
 function valueOf(member, keys) {
+  if (keys.some(key => ["annualIncome", "personalIncome"].includes(key)) && hidden(member.hideIncome)) return "";
+  if (keys.includes("companyName") && hidden(member.hideCompany)) return "";
   for (const key of keys) {
     if (key.startsWith("_") || member?.[key] === undefined || member?.[key] === null) continue;
     if (String(member[key]).trim()) return member[key];

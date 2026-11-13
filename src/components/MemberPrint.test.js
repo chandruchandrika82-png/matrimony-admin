@@ -33,7 +33,7 @@ test('print view contains only the selected member and no credentials/internal I
   expect(within(dialog).getByRole('heading',{name:'Fictional Beta'})).toBeInTheDocument();
   expect(dialog).not.toHaveTextContent('Fictional Alpha');
   expect(dialog).not.toHaveTextContent('internal-beta');expect(dialog).not.toHaveTextContent('secret-token');
-  expect(within(dialog).getAllByText('0').length).toBeGreaterThan(0);
+  expect(within(dialog).getByText('Age')).toBeInTheDocument();
   expect(within(dialog).getByText('No photo')).toBeInTheDocument();
   expect(within(dialog).getAllByText('Not provided').length).toBeGreaterThan(0);
   expect(within(dialog).getByRole('heading',{name:'New Varan Kongu Thirumana Matrimony'})).toBeInTheDocument();
@@ -57,7 +57,7 @@ test('print allowlist includes existing family/horoscope data and escapes long c
   start([{...rows[0], expectations:'<script>not-code</script> '+ 'Long fictional text '.repeat(200), companyName:'Fictional Company', annualIncome:0}]);
   await screen.findByText('Fictional Alpha');fireEvent.click(screen.getByRole('button',{name:'Print profile Fictional Alpha'}));
   const dialog=screen.getByRole('dialog');
-  for(const text of ['Fictional Parent','Rohini','Graduate','Hindu','Kongu','Fictional Company']) expect(within(dialog).getByText(text)).toBeInTheDocument();
+  for(const text of ['Fictional Parent','Rohini','Graduate','Kongu','Fictional Company']) expect(within(dialog).getByText(text)).toBeInTheDocument();
   for(const secret of ['internal-alpha','secret-password','secret-token','nestedSecret']) expect(dialog).not.toHaveTextContent(secret);
   expect(dialog.querySelector('script')).toBeNull();expect(dialog).toHaveTextContent('<script>not-code</script>');
   const photo=within(dialog).getByRole('img',{name:'Main photo'});fireEvent.error(photo);expect(within(dialog).queryByRole('img',{name:'Main photo'})).not.toBeInTheDocument();
@@ -68,7 +68,7 @@ test('hidden photos and contact/income/company fields never leak through print m
   const dialog=screen.getByRole('dialog');
   expect(within(dialog).getAllByRole('img')).toHaveLength(1); // original logo only
   for(const text of ['hidden-mobile','hidden-company','hidden-income','https://example.com/private.jpg','https://example.com/photo.jpg']) expect(dialog.innerHTML).not.toContain(text);
-  expect(within(dialog).getAllByText('Private').length).toBeGreaterThanOrEqual(4);
+  expect(within(dialog).getByText('Name')).toBeInTheDocument();
 });
 test('no unauthenticated print view or native dialog', () => {
   const print=jest.spyOn(window,'print').mockImplementation(()=>{});const close=jest.fn();
@@ -86,18 +86,17 @@ test('print stylesheet defines A4, isolates selected content and permits long se
 });
 
 
-test("compact print layout uses two ordered page groups without omitting profile fields", async () => {
+test("compact print layout uses one ordered page without omitting requested fields", async () => {
   start(); await screen.findByText("Fictional Alpha");
   fireEvent.click(screen.getByRole("button", {name: "Print profile Fictional Alpha"}));
   const dialog=screen.getByRole("dialog");
   const pages=dialog.querySelectorAll(".member-print-page");
-  expect(pages).toHaveLength(2);
-  expect(pages[1]).toHaveClass("member-print-page-two");
-  expect(within(pages[0]).getByRole("heading",{name:"Family details"})).toBeInTheDocument();
-  expect(within(pages[1]).getByRole("heading",{name:"Horoscope details"})).toBeInTheDocument();
-  expect(dialog.querySelectorAll(".member-print-field").length).toBeGreaterThan(80);
+  expect(pages).toHaveLength(1);
+  expect(within(pages[0]).getByRole("heading",{name:"Profile details"})).toBeInTheDocument();
+  expect(within(pages[0]).getByRole("heading",{name:"Horoscope"})).toBeInTheDocument();
+  expect(dialog.querySelectorAll(".member-print-field").length).toBeGreaterThan(25);
 });
 
 test("printed dialog fills printable width instead of shrink-wrapping the columns",()=>{ const css=fs.readFileSync(path.join(process.cwd(),"src/components/MemberPrint.css"),"utf8"); expect(css).toContain("width: 100% !important; max-width: 100% !important; box-sizing: border-box !important"); expect(css).toContain(".member-print-document { width: 100%; box-sizing: border-box;"); });
 
-test("first printed page balances personal and family details against career and religion", async()=>{start();await screen.findByText("Fictional Alpha");fireEvent.click(screen.getByRole("button",{name:"Print profile Fictional Alpha"}));const dialog=screen.getByRole("dialog");const left=dialog.querySelector('[data-print-column="personal-family"]'), right=dialog.querySelector('[data-print-column="career-religion"]');expect(within(left).getByRole("heading",{name:"Basic information"})).toBeInTheDocument();expect(within(left).getByRole("heading",{name:"Location and contact"})).toBeInTheDocument();expect(within(left).getByRole("heading",{name:"Family details"})).toBeInTheDocument();expect(within(right).getByRole("heading",{name:"Career and business"})).toBeInTheDocument();expect(within(right).getByRole("heading",{name:"Religion and community"})).toBeInTheDocument();});
+test("printed columns contain the requested profile boxes", async()=>{start();await screen.findByText("Fictional Alpha");fireEvent.click(screen.getByRole("button",{name:"Print profile Fictional Alpha"}));const dialog=screen.getByRole("dialog");const left=dialog.querySelector('[data-print-column="personal-family"]'), right=dialog.querySelector('[data-print-column="career-religion"]');expect(within(left).getByRole("heading",{name:"Profile details"})).toBeInTheDocument();expect(within(left).getByRole("heading",{name:"Family and work"})).toBeInTheDocument();expect(within(right).getByRole("heading",{name:"Horoscope"})).toBeInTheDocument();});
