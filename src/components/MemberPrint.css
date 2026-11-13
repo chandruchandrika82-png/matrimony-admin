@@ -53,6 +53,7 @@
   .member-print-field dt { overflow-wrap: anywhere; }
   .member-print-gallery { gap: 8px; }
   .member-print-gallery img { width: 42px; height: 52px; }
+  .member-print-box img { display: block; width: 110px; height: 110px; object-fit: contain; }
   .member-print-brand, .member-print-intro, .member-print-field, .member-print-gallery img { break-inside: avoid; page-break-inside: avoid; }
   .member-print-section { break-inside: auto; }
   .member-print-columns > .member-print-section { break-inside: avoid-column; }
