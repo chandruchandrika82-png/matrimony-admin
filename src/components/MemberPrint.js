@@ -72,6 +72,7 @@ export default function MemberPrint({ member, close }) {
     <article className="member-print-document" aria-label={t("Member profile")}>
       <header className="member-print-brand"><img src={`${process.env.PUBLIC_URL || ""}/logo.png`} alt="New Varan Kongu Thirumana Matrimony logo" />
         <div className="member-print-company"><h1>New Varan Kongu Thirumana Matrimony</h1><p>Namakkal</p><p>Phone: 9344973982</p><p className="member-print-document-label">{t("Member profile")}</p></div></header>
+      <div className="member-print-meta"><span>{t("Member profile")}</span><span>{t("Report date")}: {new Date().toLocaleDateString()}</span></div>
       <div className="member-print-intro"><div><h2>{member.name || t("Unnamed member")}</h2>
         <p>{[member.age !== null && member.age !== undefined && member.age !== "" ? `${member.age} ${t("years")}` : null, member.gender, member.currentCity || member.district].filter(Boolean).join(" · ") || t("Not provided")}</p></div>
         {photos.length ? <PrintPhoto src={photos[0]} label={t("Main photo")} /> : <p className="print-photo-fallback">{t(permitted ? "No photo" : "Private")}</p>}</div>
