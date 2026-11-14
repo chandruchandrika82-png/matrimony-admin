@@ -39,7 +39,7 @@
   body.member-print-active { margin: 0 !important; padding: 0 !important; background: white !important; overflow: visible !important; }
   .member-print-dialog { display: block !important; position: static !important; inset: auto !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; height: auto !important; max-height: none !important; margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; overflow: visible !important; box-shadow: none !important; }
   .member-print-dialog::backdrop, .member-print-toolbar { display: none !important; }
-  .member-print-document { width: 100%; box-sizing: border-box; padding: 3mm; border: 3px double #aa8548; font-size: 6.5pt; line-height: 1.03; }
+  .member-print-document { width: 100%; min-height: 285mm; box-sizing: border-box; padding: 3mm; border: 3px double #aa8548; font-size: 6.5pt; line-height: 1.03; }
   .member-print-brand { gap: 8px; padding: 5px 8px; }
   .member-print-brand img { width: 34px; height: 34px; }
   .member-print-brand h1 { font-size: 14px; }
@@ -65,11 +65,11 @@
   .member-print-box img { display: block; width: 115%; height: 420px; max-width: none; margin: 0 -7.5%; object-fit: cover; object-position: center; }
   .member-print-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 3px auto 0; width: 100%; }
   .rasi-navamsa-section { break-inside: avoid; page-break-inside: avoid; }
-  .member-print-chart { border: 3px solid #111; box-shadow: none; min-height: 192px; }
+  .member-print-chart { border: 3px solid #111; box-shadow: none; min-height: 200px; }
   .member-print-chart h4 { padding: 3px; background: #fff; color: #591e32; border-bottom: 3px solid #111; font-size: 9pt; }
-  .member-print-chart-grid { grid-template-rows: repeat(3, 58px); }
+  .member-print-chart-grid { grid-template-rows: repeat(3, 62px); }
   .member-print-chart-grid span { border: 3px solid #111; color: #111; font-size: 8pt; padding: 4px; }
-  .member-print-chart-grid strong { inset: 58px 25% 58px 25%; border: 3px solid #111; color: #591e32; font-size: 9pt; }
+  .member-print-chart-grid strong { inset: 62px 25% 62px 25%; border: 3px solid #111; color: #591e32; font-size: 9pt; }
   .member-print-brand, .member-print-intro, .member-print-field, .member-print-gallery img { break-inside: avoid; page-break-inside: avoid; }
   .member-print-section { break-inside: auto; }
   .member-print-columns > .member-print-section { break-inside: avoid-column; }
