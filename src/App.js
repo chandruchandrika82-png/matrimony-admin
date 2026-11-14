@@ -4,6 +4,7 @@ import "./MemberAdmin.css";
 
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
+import Interests from "./pages/Interests";
 import Members from "./pages/Members";
 import Premium from "./pages/Premium";
 import Reports from "./pages/Reports";
@@ -27,6 +28,7 @@ function App() {
             <Layout>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/interests" element={<Interests />} />
                 <Route path="/members" element={<Members />} />
                 <Route path="/premium" element={<Premium />} />
                 <Route path="/reports" element={<Reports />} />

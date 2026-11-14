@@ -1,0 +1,11 @@
+.git
+.vercel
+node_modules
+build
+android
+artifacts
+website-update
+scripts
+.env*
+*.log
+capacitor.config.*

@@ -31,7 +31,7 @@ export function LanguageProvider({ children }) {
     document.documentElement.lang = language;
     try { localStorage.setItem("adminLanguage", language); } catch {}
   }, [language]);
-  return <Context.Provider value={{ language, setLanguage, t: text => language === "ta" ? tamil[text] || text : text }}>{children}</Context.Provider>;
+  return <Context.Provider value={{ language, setLanguage, t: text => language === "ta" ? tamil[text] || (text === "Kulam" ? "குலம்" : text) : text }}>{children}</Context.Provider>;
 }
 export const useLanguage = () => useContext(Context);
 export function LanguageSelect() {

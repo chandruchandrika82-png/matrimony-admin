@@ -1,4 +1,5 @@
 const { chromium } = require('C:/Users/lenovo/AppData/Local/npm-cache/_npx/420ff84f11983ee5/node_modules/playwright');
+const base = process.env.ADMIN_URL || 'http://localhost:3002';
 async function main() {
   const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
   try {
@@ -7,7 +8,7 @@ async function main() {
     const members = Array.from({ length: 12 }, (_, i) => ({ _id: String(i), name: `Fixture Member ${i + 1}`, email: `fixture${i + 1}@example.com`, age: 25 + i, gender: i % 2 ? 'Male' : 'Female', district: i % 3 ? 'Namakkal' : 'Erode', isPremium: i < 4, createdAt: new Date(Date.UTC(2026, 9, i + 1)).toISOString() }));
     await page.route('**/api/**', route => route.fulfill({ json: members }));
     for (const width of [1440, 390, 320]) {
-      await page.setViewportSize({ width, height: 900 }); await page.goto('http://localhost:3002/');
+      await page.setViewportSize({ width, height: 900 }); await page.goto(base + '/');
       await page.locator('.overview-donut').getByText('33%').waitFor();
       for (const language of ['en', 'ta']) {
         await page.locator('.language-select').selectOption(language);

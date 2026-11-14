@@ -10,7 +10,7 @@ function Layout({ children }) {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   if (!localStorage.getItem("adminToken")) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  const page = { "/": "Overview", "/members": "Members", "/premium": "Premium", "/reports": "Reports", "/settings": "Settings" }[location.pathname] || "Admin";
+  const page = { "/": "Overview", "/members": "Members", "/interests": "Interest Requests", "/premium": "Premium", "/reports": "Reports", "/settings": "Settings" }[location.pathname] || "Admin";
   return <MemberProvider><div className={`admin-layout ${open ? "nav-open" : ""}`}>
     {open && <button className="nav-backdrop" aria-label="Close navigation" onClick={() => setOpen(false)} />}
     <Sidebar onNavigate={() => setOpen(false)} />
