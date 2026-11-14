@@ -100,9 +100,10 @@ export default function MemberPrint({ member, close }) {
       <div className="member-print-page"><div className="member-print-columns member-print-first-page-columns">
         <div className="member-print-column" data-print-column="personal-family">
           {section("Profile details", [["Name", ["name"]], ["Gender", ["gender"]], ["Age", ["age"]], ["Birth date", ["dob"]], ["Birth time", ["birthTime"]], ["Birth place", ["birthPlace"]], ["Height & weight", ["_heightWeight"]], ["Colour", ["colour", "color", "complexion"]], ["Blood group", ["bloodGroup"]], ["Personal income", ["personalIncome", "annualIncome"]]])}
-          {section("Family and work", [["Kulam", ["kulam", "caste", "subCaste"]], ["Kulam God", ["kulamGod", "kuladeivam"]], ["Degree", ["education"]], ["Business / work", ["occupationType", "companyName"]], ["Father name", ["fatherName"]], ["Father business", ["fatherOccupation"]], ["Father native", ["fatherNative"]], ["Mother name", ["motherName"]], ["Mother business", ["motherOccupation"]], ["Mother native", ["motherNative"]], ["Family income", ["familyIncome"]], ["Siblings", ["_siblings"]], ["Property details", ["_property"]], ["Expectations", ["expectations"]]])}
+          {section("Family details", [["Degree", ["education"]], ["Business / work", ["occupationType", "companyName"]], ["Father name", ["fatherName"]], ["Father business", ["fatherOccupation"]], ["Father native", ["fatherNative"]], ["Mother name", ["motherName"]], ["Mother business", ["motherOccupation"]], ["Mother native", ["motherNative"]], ["Family income", ["familyIncome"]], ["Siblings", ["_siblings"]], ["Property details", ["_property"]], ["Expectations", ["expectations"]]])}
         </div>
         <div className="member-print-column" data-print-column="career-religion">
+          {section("Kulam details", [["Kulam", ["kulam", "caste", "subCaste"]], ["Kulam God", ["kulamGod", "kuladeivam"]]])}
           {section("Horoscope", [["Lagna", ["lagnam"]], ["Rasi", ["rashi", "zodiac"]], ["Nakshatra", ["star"]], ["Tamil date", ["tamilDate"]]])}
         </div>
       </div></div>
