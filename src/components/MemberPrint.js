@@ -4,6 +4,7 @@ import { FiPrinter, FiX } from "react-icons/fi";
 import { memberMediaUrl } from "../services/media";
 import { useLanguage } from "../Language";
 import "./MemberPrint.css";
+import { getCompanySettings } from "../services/companySettings";
 
 const hidden = value => value === true || value === "true";
 export function printValue(member, key, t) {
@@ -41,6 +42,7 @@ function valueOf(member, keys) {
 }
 export default function MemberPrint({ member, close }) {
   const { t } = useLanguage();
+  const company = getCompanySettings();
   const ref = useRef(null);
   const busy = useRef(false);
   const mounted = useRef(false);
@@ -92,8 +94,8 @@ export default function MemberPrint({ member, close }) {
     <div className="member-print-toolbar"><div className="member-print-date-controls"><label>{t("Applying date")}<input type="date" value={applyingDate} onChange={event => setApplyingDate(event.target.value)} /></label><label>{t("Report expiry date")}<input type="date" value={expiryDate} onChange={event => setExpiryDate(event.target.value)} /></label></div><button className="button primary" onClick={print} disabled={preparing}><FiPrinter />{t(preparing ? "Preparing print..." : "Print / Save as PDF")}</button>
       <button className="button" onClick={close}><FiX />{t("Close")}</button></div>
     <article className="member-print-document" aria-label={t("Member profile")}>
-      <header className="member-print-brand"><img src={`${process.env.PUBLIC_URL || ""}/logo.png`} alt="New Varan Kongu Thirumana Matrimony logo" />
-        <div className="member-print-company"><h1>New Varan Kongu Thirumana Matrimony</h1><p>Namakkal</p><p>Phone: 9344973982</p><p>www.newvaran.com</p><p className="member-print-document-label">{t("Member profile")}</p></div></header>
+      <header className="member-print-brand"><img src={company.logo || `${process.env.PUBLIC_URL || ""}/logo.png`} alt={`${company.name} logo`} />
+        <div className="member-print-company"><h1>{company.name}</h1><p>{company.address}</p><p>Phone: {company.phone}</p><p>{company.website}</p><p className="member-print-document-label">{t("Member profile")}</p></div></header>
       <div className="member-print-meta"><span>{t("Profile ID")}: NM-{profileNumber}</span><span>{t("Applying date")}: {applyingDate}</span><span>{t("Report expiry date")}: {expiryDate}</span></div>
       <div className="member-print-intro"><div><h2>{member.name || t("Unnamed member")}</h2>
         <p>{[member.age !== null && member.age !== undefined && member.age !== "" ? `${member.age} ${t("years")}` : null, member.gender ? t(member.gender) : null, member.currentCity || member.district].filter(Boolean).join(" · ") || t("Not provided")}</p></div>
