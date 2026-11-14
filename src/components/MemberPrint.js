@@ -21,10 +21,11 @@ function PrintPhoto({ src, label }) {
     : <img src={src} alt={label} onError={() => setFailed(true)} />;
 }
 function HoroscopeChart({ title, member, navamsa = false }) {
+  const { t } = useLanguage();
   const cells = navamsa
     ? ["", member.rashi || "Rasi", "Sani", "Kethu", "Sukra", "Lagna", "", "Chandra", "Guru", "", "Rahu", "Surya"]
     : ["", member.rashi || "Rasi", "Kethu", "Guru", "Chandra", "Lagna", "", "Sukra", "Sani", "", "Rahu", "Surya"];
-  return <section className="member-print-chart"><h4>{title}</h4><div className="member-print-chart-grid">{cells.map((cell, index) => <span key={`${title}-${index}`}>{cell}</span>)}<strong>{member.rashi || "Rasi"}</strong></div></section>;
+  return <section className="member-print-chart"><h4>{t(title)}</h4><div className="member-print-chart-grid">{cells.map((cell, index) => <span key={`${title}-${index}`}>{cell ? t(String(cell)) : ""}</span>)}<strong>{t(String(member.rashi || "Rasi"))}</strong></div></section>;
 }
 function valueOf(member, keys) {
   if (keys.some(key => ["annualIncome", "personalIncome"].includes(key)) && hidden(member.hideIncome)) return "";
@@ -82,7 +83,7 @@ export default function MemberPrint({ member, close }) {
   }, [close]);
   function section(title, fields) {
     return <section className="member-print-section" key={title}><h3>{t(title)}</h3><dl>
-      {fields.map(([label, keys]) => <div className="member-print-field" key={label}><dt>{t(label)}</dt><dd>{valueOf(member, keys) || t("Not provided")}</dd></div>)}
+      {fields.map(([label, keys]) => <div className="member-print-field" key={label}><dt>{t(label)}</dt><dd>{valueOf(member, keys) ? t(String(valueOf(member, keys))) : t("Not provided")}</dd></div>)}
     </dl></section>;
   }
   if (!localStorage.getItem("adminToken")) return null;
@@ -95,7 +96,7 @@ export default function MemberPrint({ member, close }) {
         <div className="member-print-company"><h1>New Varan Kongu Thirumana Matrimony</h1><p>Namakkal</p><p>Phone: 9344973982</p><p>www.newvaran.com</p><p className="member-print-document-label">{t("Member profile")}</p></div></header>
       <div className="member-print-meta"><span>{t("Profile ID")}: NM-{profileNumber}</span><span>{t("Applying date")}: {applyingDate}</span><span>{t("Report expiry date")}: {expiryDate}</span></div>
       <div className="member-print-intro"><div><h2>{member.name || t("Unnamed member")}</h2>
-        <p>{[member.age !== null && member.age !== undefined && member.age !== "" ? `${member.age} ${t("years")}` : null, member.gender, member.currentCity || member.district].filter(Boolean).join(" · ") || t("Not provided")}</p></div>
+        <p>{[member.age !== null && member.age !== undefined && member.age !== "" ? `${member.age} ${t("years")}` : null, member.gender ? t(member.gender) : null, member.currentCity || member.district].filter(Boolean).join(" · ") || t("Not provided")}</p></div>
         {photos.length ? <PrintPhoto src={photos[0]} label={t("Main photo")} /> : <p className="print-photo-fallback">{t(permitted ? "No photo" : "Private")}</p>}</div>
       <div className="member-print-page"><div className="member-print-columns member-print-first-page-columns">
         <div className="member-print-column" data-print-column="personal-family">
