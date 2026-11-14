@@ -107,7 +107,7 @@ export default function MemberPrint({ member, close }) {
           {section("Horoscope", [["Lagna", ["lagnam"]], ["Rasi", ["rashi", "zodiac"]], ["Nakshatra", ["star"]], ["Tamil date", ["tamilDate"]]])}
         </div>
       </div></div>
-      <section className="horoscope-section"><div className="member-print-section member-print-box"><h3>{t("Jathagam")}</h3>{member.horoscopeFile && /^https?:\/\//i.test(memberMediaUrl(member.horoscopeFile) || "") && /\.(jpe?g|png|webp)(\?|$)/i.test(memberMediaUrl(member.horoscopeFile)) ? <PrintPhoto src={memberMediaUrl(member.horoscopeFile)} label={t("Horoscope file")} /> : <p>{t(member.horoscopeFile ? "Available" : "Not provided")}</p>}</div><div className="rasi-navamsa-section"><div className="member-print-charts"><HoroscopeChart title="Rasi chart" member={member} /><HoroscopeChart title="Navamsa chart" member={member} navamsa /></div></div></section>
+      <section className="horoscope-section"><div className="member-print-section member-print-box"><h3>{t("Jathagam")}</h3></div><div className="rasi-navamsa-section"><div className="member-print-charts"><HoroscopeChart title="Rasi chart" member={member} /><HoroscopeChart title="Navamsa chart" member={member} navamsa /></div></div></section>
       {photos.length > 1 && <section className="member-print-section"><h3>{t("Photos and documents")}</h3><div className="member-print-gallery">{photos.slice(1).map((url, index) => <PrintPhoto key={url} src={url} label={`${t("Profile")} ${index + 1}`} />)}</div></section>}
     </article>
   </dialog>, document.body);

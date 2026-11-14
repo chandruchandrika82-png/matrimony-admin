@@ -32,44 +32,44 @@
 .member-print-field:nth-child(even) { background: #f3f3f1; }
 .member-print-gallery { display: flex; flex-wrap: wrap; gap: 12px; padding-top: 12px; }
 .member-print-gallery img { width: 130px; height: 160px; object-fit: contain; }
-@page { size: A4 portrait; margin: 10mm; }
+@page { size: A4 portrait; margin: 6mm; }
 .horoscope-section, .rasi-navamsa-section { break-inside: avoid; page-break-inside: avoid; }
 @media print {
   body.member-print-active > *:not(.member-print-dialog) { display: none !important; }
   body.member-print-active { margin: 0 !important; padding: 0 !important; background: white !important; overflow: visible !important; }
   .member-print-dialog { display: block !important; position: static !important; inset: auto !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; height: auto !important; max-height: none !important; margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; overflow: visible !important; box-shadow: none !important; }
   .member-print-dialog::backdrop, .member-print-toolbar { display: none !important; }
-  .member-print-document { width: 100%; box-sizing: border-box; padding: 5mm; border: 3px double #aa8548; font-size: 8pt; line-height: 1.15; }
-  .member-print-brand { gap: 12px; padding: 8px 10px; }
-  .member-print-brand img { width: 42px; height: 42px; }
-  .member-print-brand h1 { font-size: 16px; }
+  .member-print-document { width: 100%; box-sizing: border-box; padding: 3mm; border: 3px double #aa8548; font-size: 6.5pt; line-height: 1.03; }
+  .member-print-brand { gap: 8px; padding: 5px 8px; }
+  .member-print-brand img { width: 34px; height: 34px; }
+  .member-print-brand h1 { font-size: 14px; }
   .member-print-brand p { margin-top: 2px; }
   .member-print-meta { padding: 4px 0; font-size: 8pt; }
   .member-print-date-controls { display: none; }
-  .member-print-intro { padding: 5px 0; }
-  .member-print-intro h2 { font-size: 16px; margin-bottom: 2px; }
-  .member-print-intro p { margin: 2px 0; }
-  .member-print-intro img { width: 52px; height: 62px; }
+  .member-print-intro { padding: 3px 0; }
+  .member-print-intro h2 { font-size: 14px; margin-bottom: 1px; }
+  .member-print-intro p { margin: 1px 0; }
+  .member-print-intro img { width: 42px; height: 48px; }
   .member-print-page { display: contents; }
   .member-print-columns { columns: 2; column-gap: 5mm; }
   .member-print-first-page-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5mm; align-items: start; }
   .member-print-column { min-width: 0; }
   .member-print-page-two { break-before: auto; page-break-before: auto; }
-  .member-print-section { margin-top: 3px; }
-  .member-print-section h3 { font-size: 8pt; padding: 2px 0; }
+  .member-print-section { margin-top: 2px; }
+  .member-print-section h3 { font-size: 7.5pt; padding: 1px 0; }
   .member-print-field { grid-template-columns: minmax(0, 43%) minmax(0, 1fr); gap: 3px; padding: 2px 0; }
   .member-print-field dt { overflow-wrap: anywhere; }
   .member-print-gallery { gap: 8px; }
   .member-print-gallery img { width: 42px; height: 52px; }
   .member-print-box img { display: block; width: 110px; height: 110px; object-fit: contain; }
   .member-print-box img { display: block; width: 115%; height: 420px; max-width: none; margin: 0 -7.5%; object-fit: cover; object-position: center; }
-  .member-print-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5mm; margin-top: 5px; }
+  .member-print-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4mm; margin-top: 3px; }
   .rasi-navamsa-section { break-inside: avoid; page-break-inside: avoid; }
   .member-print-chart { border: 2px solid #111; box-shadow: none; }
-  .member-print-chart h4 { padding: 4px; background: #fff; color: #591e32; border-bottom: 2px solid #111; font-size: 9pt; }
-  .member-print-chart-grid { grid-template-rows: repeat(3, 42px); }
-  .member-print-chart-grid span { border: 2px solid #111; color: #111; font-size: 7pt; }
-  .member-print-chart-grid strong { inset: 42px 25% 42px 25%; border: 2px solid #111; color: #591e32; font-size: 8pt; }
+  .member-print-chart h4 { padding: 2px; background: #fff; color: #591e32; border-bottom: 2px solid #111; font-size: 8pt; }
+  .member-print-chart-grid { grid-template-rows: repeat(3, 34px); }
+  .member-print-chart-grid span { border: 2px solid #111; color: #111; font-size: 6.5pt; }
+  .member-print-chart-grid strong { inset: 34px 25% 34px 25%; border: 2px solid #111; color: #591e32; font-size: 7pt; }
   .member-print-brand, .member-print-intro, .member-print-field, .member-print-gallery img { break-inside: avoid; page-break-inside: avoid; }
   .member-print-section { break-inside: auto; }
   .member-print-columns > .member-print-section { break-inside: avoid-column; }
