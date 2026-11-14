@@ -95,7 +95,7 @@ export default function MemberPrint({ member, close }) {
       <button className="button" onClick={close}><FiX />{t("Close")}</button></div>
     <article className="member-print-document" aria-label={t("Member profile")}>
       <header className="member-print-brand"><img src={company.logo || `${process.env.PUBLIC_URL || ""}/logo.png`} alt={`${company.name} logo`} />
-        <div className="member-print-company"><h1>{company.name}</h1><p>{company.address}</p><p>Phone: {company.phone}</p><p>{company.website}</p><p className="member-print-document-label">{t("Member profile")}</p></div></header>
+        <div className="member-print-company"><h1>{company.name}</h1><p>{company.address} DT, Phone - {company.phone}</p><p>{company.website}</p><p className="member-print-document-label">{t("Member profile")}</p></div></header>
       <div className="member-print-meta"><span>{t("Profile ID")}: NM-{profileNumber}</span><span>{t("Applying date")}: {applyingDate}</span><span>{t("Report expiry date")}: {expiryDate}</span></div>
       <div className="member-print-intro"><div><h2>{member.name || t("Unnamed member")}</h2>
         <p>{[member.age !== null && member.age !== undefined && member.age !== "" ? `${member.age} ${t("years")}` : null, member.gender ? t(member.gender) : null, member.currentCity || member.district].filter(Boolean).join(" · ") || t("Not provided")}</p></div>
